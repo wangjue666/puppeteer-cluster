@@ -1,5 +1,5 @@
 
-import * as puppeteer from 'puppeteer';
+import * as puppeteer from 'puppeteer-core';
 import ConcurrencyImplementation, { ResourceData } from './ConcurrencyImplementation';
 
 import { debugGenerator, timeoutExecute } from '../util';
@@ -16,8 +16,11 @@ export default abstract class SingleBrowserImplementation extends ConcurrencyImp
     private openInstances: number = 0;
     private waitingForRepairResolvers: (() => void)[] = [];
 
-    public constructor(options: puppeteer.LaunchOptions, puppeteer: any) {
-        super(options, puppeteer);
+    public constructor(options: puppeteer.LaunchOptions, puppeteer: any, browser?: puppeteer.Browser) {
+        super(options, puppeteer)
+        if(browser){
+            this.browser = browser
+        }
     }
 
     private async repair() {
@@ -38,7 +41,9 @@ export default abstract class SingleBrowserImplementation extends ConcurrencyImp
         }
 
         try {
-            this.browser = await this.puppeteer.launch(this.options) as puppeteer.Browser;
+            if(!this.browser){
+                this.browser = await this.puppeteer.launch(this.options) as puppeteer.Browser;
+            }
         } catch (err) {
             throw new Error('Unable to restart chrome.');
         }
@@ -49,7 +54,9 @@ export default abstract class SingleBrowserImplementation extends ConcurrencyImp
     }
 
     public async init() {
-        this.browser = await this.puppeteer.launch(this.options);
+        if(!this.browser){
+            this.browser = await this.puppeteer.launch(this.options);
+        }
     }
 
     public async close() {
