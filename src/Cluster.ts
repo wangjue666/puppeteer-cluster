@@ -6,7 +6,7 @@ import Worker, { WorkResult } from './Worker';
 
 import * as builtInConcurrency from './concurrency/builtInConcurrency';
 
-import { LaunchOptions, Page } from 'puppeteer';
+import { LaunchOptions, Page, Browser } from 'puppeteer-core';
 import Queue from './Queue';
 import SystemMonitor from './SystemMonitor';
 import { EventEmitter } from 'events';
@@ -28,6 +28,7 @@ interface ClusterOptions {
     skipDuplicateUrls: boolean;
     sameDomainDelay: number;
     puppeteer: any;
+    browser?: Browser;
 }
 
 type Partial<T> = {
@@ -134,22 +135,26 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         let puppeteer = this.options.puppeteer;
 
         if (this.options.puppeteer == null) { // check for null or undefined
-            puppeteer = require('puppeteer');
+            puppeteer = require('puppeteer-core');
         } else {
             debug('Using provided (custom) puppteer object.');
         }
-
-        if (this.options.concurrency === Cluster.CONCURRENCY_PAGE) {
-            this.browser = new builtInConcurrency.Page(browserOptions, puppeteer);
-        } else if (this.options.concurrency === Cluster.CONCURRENCY_CONTEXT) {
-            this.browser = new builtInConcurrency.Context(browserOptions, puppeteer);
-        } else if (this.options.concurrency === Cluster.CONCURRENCY_BROWSER) {
-            this.browser = new builtInConcurrency.Browser(browserOptions, puppeteer);
-        } else if (typeof this.options.concurrency === 'function') {
-            this.browser = new this.options.concurrency(browserOptions, puppeteer);
-        } else {
-            throw new Error(`Unknown concurrency option: ${this.options.concurrency}`);
+        if(this.options.browser){
+            this.browser = new builtInConcurrency.Page(browserOptions, puppeteer, this.options.browser )
+        }else{
+            if (this.options.concurrency === Cluster.CONCURRENCY_PAGE) {
+                this.browser = new builtInConcurrency.Page(browserOptions, puppeteer);
+            } else if (this.options.concurrency === Cluster.CONCURRENCY_CONTEXT) {
+                this.browser = new builtInConcurrency.Context(browserOptions, puppeteer);
+            } else if (this.options.concurrency === Cluster.CONCURRENCY_BROWSER) {
+                this.browser = new builtInConcurrency.Browser(browserOptions, puppeteer);
+            } else if (typeof this.options.concurrency === 'function') {
+                this.browser = new this.options.concurrency(browserOptions, puppeteer);
+            } else {
+                throw new Error(`Unknown concurrency option: ${this.options.concurrency}`);
+            }
         }
+        
 
         if (typeof this.options.maxConcurrency !== 'number') {
             throw new Error('maxConcurrency must be of number type');
