@@ -19,7 +19,7 @@ interface ClusterOptions {
     concurrency: number | ConcurrencyImplementationClassType;
     maxConcurrency: number;
     workerCreationDelay: number;
-    puppeteerOptions: LaunchOptions;
+    puppeteerOptions?: LaunchOptions[]
     perBrowserOptions: LaunchOptions[] | undefined;
     monitor: boolean;
     timeout: number;
@@ -27,7 +27,7 @@ interface ClusterOptions {
     retryDelay: number;
     skipDuplicateUrls: boolean;
     sameDomainDelay: number;
-    puppeteer: any;
+    puppeteer?: any;
     browser?: Browser;
 }
 
@@ -41,9 +41,6 @@ const DEFAULT_OPTIONS: ClusterOptions = {
     concurrency: 2, // CONTEXT
     maxConcurrency: 1,
     workerCreationDelay: 0,
-    puppeteerOptions: {
-        // headless: false, // just for testing...
-    },
     perBrowserOptions: undefined,
     monitor: false,
     timeout: 30 * 1000,
@@ -131,7 +128,7 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
     }
 
     private async init() {
-        const browserOptions = this.options.puppeteerOptions;
+        const browserOptions = this.options.puppeteerOptions || {};
         let puppeteer = this.options.puppeteer;
 
         if (this.options.puppeteer == null) { // check for null or undefined
