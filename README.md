@@ -23,4 +23,13 @@ cluster.queue('https://domain/product/B0084M66QS')
 cluster.queue('https://domain/product/B01CU2954W')
 ```
 
+## Installation
+
+`npm install --save puppeteer-core`
+
+`git clone https://github.com/wangjue666/puppeteer-cluster.git`
+
+`npm run build`
+
+then copy the `dist` folder
 
