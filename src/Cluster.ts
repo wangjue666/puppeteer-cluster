@@ -451,8 +451,6 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         clearInterval(this.checkForWorkInterval as NodeJS.Timer);
         clearTimeout(this.workCallTimeout as NodeJS.Timer);
 
-        // close workers
-        await Promise.all(this.workers.map(worker => worker.close()));
 
         if (this.monitoringInterval) {
             this.monitor();
@@ -464,8 +462,6 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         }
 
         this.systemMonitor.close();
-
-        debug('Closed');
     }
 
     private monitor(): void {
