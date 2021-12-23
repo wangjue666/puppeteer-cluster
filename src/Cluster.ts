@@ -454,12 +454,6 @@ export default class Cluster<JobData = any, ReturnData = any> extends EventEmitt
         // close workers
         await Promise.all(this.workers.map(worker => worker.close()));
 
-        try {
-            await (this.browser as ConcurrencyImplementation).close();
-        } catch (err) {
-            debug(`Error: Unable to close browser, message: ${err.message}`);
-        }
-
         if (this.monitoringInterval) {
             this.monitor();
             clearInterval(this.monitoringInterval);
